@@ -18,13 +18,29 @@ const app = (server: Server) => {
 
     io.on('connection', (socket) => {
         const { from, to } = socket.handshake.query
-        users.push({
-            id: Number(from),
-            socketId: socket.id
+        const index = users.findIndex(user => user.id === Number(from))
+
+        const userTo = users.find(user => user.id === Number(to))
+
+        if(index>=0){
+            users[index].socketId = socket.id
+        }else {
+            users.push({
+                id: Number(from),
+                socketId: socket.id
+            })
+        }
+        
+        socket.on('message', (message)=>{
+            if(userTo){
+                io.emit('new-message', message)
+            }
         })
 
-        socket.on('message', (message)=>{
-            io.emit('new-message', message)
+        socket.on('typing', (data)=> {
+            if(userTo){
+                io.emit('new-typing', data)
+            }
         })
 
         socket.on('disconnect', () =>{
