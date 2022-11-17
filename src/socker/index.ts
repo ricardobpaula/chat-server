@@ -6,6 +6,12 @@ type SocketUser = {
     socketId: any;
 }
 
+type Message = {
+    owner: number;
+    text: string;
+    id: number; 
+}
+
 const app = (server: Server) => {
     const io = new ServerIO(server, {
         cors: {
@@ -30,8 +36,7 @@ const app = (server: Server) => {
                 socketId: socket.id
             })
         }
-        
-        socket.on('message', (message)=>{
+        socket.on('message', (message: Message)=>{
             if(userTo){
                 io.emit('new-message', message)
             }
